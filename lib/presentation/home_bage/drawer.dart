@@ -9,6 +9,7 @@ class DrawerWidget extends StatelessWidget {
   final MainCubit cubit;
   @override
   Widget build(BuildContext context) {
+    cubit.getMyProfile();
     return BlocBuilder<MainCubit,MainState>(
         builder: (context,state) {
         return Column(
@@ -17,7 +18,7 @@ class DrawerWidget extends StatelessWidget {
               padding: const EdgeInsets.only(top: 20.0),
               child: InkWell(
                 onTap: () async{
-                 await cubit.requestAddCardCubit("");
+                 await cubit.requestAddCardCubit("",cubit.myProfile["userType"]);
                 },
                 child: const Row(
                   children: [
@@ -33,7 +34,7 @@ class DrawerWidget extends StatelessWidget {
               padding: const EdgeInsets.only(top: 20.0),
               child: InkWell(
                 onTap: () async{
-                  await cubit.requestUpdateCardCubit("update");
+                  await cubit.requestUpdateCardCubit("update",cubit.myProfile["userType"]);
                 },
                 child: const Row(
                   children: [
@@ -65,7 +66,7 @@ class DrawerWidget extends StatelessWidget {
               padding: const EdgeInsets.only(top: 20.0),
               child: InkWell(
                 onTap: () {
-                  // cubit.requestUpdateFamilyCubit("update");
+                  cubit.requestUpdateFamilyCubit("update");
                 },
                 child: const Row(
                   children: [

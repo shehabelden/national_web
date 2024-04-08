@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'firebase_options.dart';
 import 'presentation/auth/cubit/cubit.dart';
+import 'presentation/auth/login_check.dart';
 import 'presentation/auth/login_screen.dart';
 import 'presentation/home_bage/cubit/cubit.dart';
 import 'presentation/home_bage/home_screen.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: HomeScreen(),
+        home: LoginCheck(),
       ),
     );
   }

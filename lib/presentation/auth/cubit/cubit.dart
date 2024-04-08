@@ -5,6 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'state.dart';
 class AuthCubit extends Cubit<AuthMainState> {
   AuthCubit() : super(AuthInitState());
+  String userType="Insurance";
+  List <String> list= [
+    "Insurance",
+    "Ministry of Interior",
+    "the traffic",
+  ];
   static AuthCubit get(context) => BlocProvider.of(context);
   signInCubit(emailAddress, password) async {
     emit(EmptyLoginState());
@@ -16,8 +22,12 @@ class AuthCubit extends Cubit<AuthMainState> {
     }
     emit(SignInState());
   }
-
-  signUpCubit(emailAddress, password,name) async {
+  dropDownSubCategory(value){
+    userType=value;
+    print(userType);
+    emit(DropDownSubCategory());
+  }
+  signUpCubit(emailAddress, password,name,usertype) async {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: "$emailAddress",
@@ -33,13 +43,14 @@ class AuthCubit extends Cubit<AuthMainState> {
       print(e);
     }
     print("e");
-    createProf(FirebaseAuth.instance.currentUser!.uid,name);
+    createProf(FirebaseAuth.instance.currentUser!.uid,name,userType);
     emit(SignUpState());
   }
-  createProf(uid,name)async{
+  createProf(uid,name,userType)async{
    await FirebaseFirestore.instance.collection("Profile").doc(uid).set(
      {
        "name":name,
+       "userType":userType,
      }
    );
    FirebaseFirestore.instance.

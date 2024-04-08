@@ -3,13 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'body.dart';
 import 'cubit/cubit.dart';
 import 'cubit/state.dart';
-import 'drawer.dart' ;
+import 'drawer.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
     MainCubit cubit=MainCubit.get(context);
-    cubit.requestAddCardCubit("");
+    cubit.getMyProfile();
+    cubit.requestAddCardCubit("",cubit.myProfile["userType"]);
     return BlocBuilder<MainCubit,MainState>(
       builder: (context,state) {
         return Scaffold(
@@ -17,7 +18,7 @@ class HomeScreen extends StatelessWidget {
           drawer: Drawer(
             child:DrawerWidget(cubit:cubit),
           ),
-          body:MainState is  EmptyState? const Center(child: CircularProgressIndicator(),): BodyHome(),
+          body:MainState is  EmptyState? const Center(child: CircularProgressIndicator(),): const BodyHome(),
         );
       }
     );

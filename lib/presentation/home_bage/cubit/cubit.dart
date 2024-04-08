@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'state.dart';
 //     "Insurance",
@@ -10,6 +11,7 @@ class MainCubit extends Cubit<MainState> {
   List requestData=[];
   List requestId=[];
   String update="";
+  Map<String,dynamic>myProfile={};
   String subId="national_card";
   getProfile()async{
     await FirebaseFirestore.instance.collection("Profile").get().then((value) {
@@ -19,7 +21,14 @@ class MainCubit extends Cubit<MainState> {
     });
     emit(ProfileState());
   }
-  requestUpdateCardCubit(updae)async{
+  getMyProfile()async{
+    await FirebaseFirestore.instance.collection("Profile").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
+      myProfile=value.data()!;
+    });
+    emit(MyProfileState());
+  }
+
+  requestUpdateCardCubit(updae,myId)async{
     update=updae;
     subId="national_card";
     emit(EmptyState());
@@ -27,12 +36,17 @@ class MainCubit extends Cubit<MainState> {
     parent.then((value){
       requestData=[];
       value.docs.forEach((element) {
-        element.reference.collection("my_cards").doc("national_card")
-            .collection("update").get().then((value){
+        element.reference.collection("my_cards").where("permission",isEqualTo:myId)
+            .get().then((value){
           value.docs.forEach((element) {
-            requestData.add(element.data());
-            requestId.add(element.id);
-            print(element.data());
+            element.reference.collection("update").get().then((value) {
+              value.docs.forEach((element) {
+                requestData.add(element.data());
+                requestId.add(element.id);
+                print("update card ${requestData}");
+              });
+            });
+            // print(element.data());
           });
         });
      });
@@ -40,7 +54,7 @@ class MainCubit extends Cubit<MainState> {
    });
     emit(RequestUpdateCardState());
   }
-  requestAddCardCubit(updae)async{
+  requestAddCardCubit(updae,myId)async{
     emit(EmptyState());
     update=updae;
     subId="national_card";
@@ -48,11 +62,12 @@ class MainCubit extends Cubit<MainState> {
     parent.then((value){
       requestData=[];
       value.docs.forEach((element) {
-        element.reference.collection("my_cards").get().then((value){
+        element.reference.collection("my_cards")
+            .where("permission",isEqualTo:myId).get().then((value){
           value.docs.forEach((element) {
             requestData.add(element.data());
             requestId.add(element.id);
-            print(element.data());
+            print("add card ${element.data()}");
           });
         });
       });
@@ -72,7 +87,7 @@ class MainCubit extends Cubit<MainState> {
           value.docs.forEach((element) {
             requestData.add(element.data());
             requestId.add(element.id);
-            // print(element.data());
+            print(" add family ${element.data()}");
           });
         });
       });
@@ -87,29 +102,28 @@ class MainCubit extends Cubit<MainState> {
     subId="";
     var parent= FirebaseFirestore.instance.collection("Profile").get();
     parent.then((value){
-      requestData=[];
       value.docs.forEach((element) {
-        element.reference.collection("my_family").doc("national_card")
-            .collection("update").get().then((value){
+        requestData=[];
+        element.reference.collection("my_family_update").get().then((value){
           value.docs.forEach((element) {
             requestData.add(element.data());
             requestId.add(element.id);
             // print(element.data());
+            print("update family ${requestData}");
           });
         });
       });
     });
     emit(RequestUpdateFamilyState());
   }
-
   addAcptedData(id,data,edit,collection,doc)async{
     requestData=[];
-    print(id);
+    // print(id);
     if(subId==""){
       if(update =="update"){
         await FirebaseFirestore.instance.collection("Profile")
-            .doc(id).collection("my_family").doc(doc)
-            .collection("update").doc("update").update(data);
+            .doc(id).collection("my_family_update").doc(doc)
+            .update(data);
         FirebaseFirestore.instance.collection("Profile")
             .doc(id).collection("my_family").doc(doc).update(data);}
       else{
@@ -124,12 +138,12 @@ class MainCubit extends Cubit<MainState> {
             .doc(id).collection(collection).doc(doc)
             .collection("update").doc("update").update(data);
         FirebaseFirestore.instance.collection("Profile")
-            .doc(id).collection("my_cards").doc("national_card").update(data);}
+            .doc(id).collection("my_cards").doc(doc).update(data);}
       else{
         FirebaseFirestore.instance.collection("Profile")
             .doc(id).collection(collection).doc(doc).update(data);
         FirebaseFirestore.instance.collection("Profile")
-            .doc(id).collection("my_cards").doc("national_card").update(data);
+            .doc(id).collection("my_cards").doc(doc).update(data);
       }
 
     }
@@ -139,8 +153,8 @@ class MainCubit extends Cubit<MainState> {
     if(subId==""){
       if(update =="update"){
         await FirebaseFirestore.instance.collection("Profile")
-            .doc(id).collection("my_family").doc(doc)
-            .collection("update").doc("update").update(data);
+            .doc(id).collection("my_family_update").doc(doc)
+            .update(data);
       }
       else{
         FirebaseFirestore.instance.collection("Profile")
@@ -157,5 +171,5 @@ class MainCubit extends Cubit<MainState> {
             .doc(id).collection(collection).doc(doc).update(data);
       }
   }
-
-}}
+}
+}

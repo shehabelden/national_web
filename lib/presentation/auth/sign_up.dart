@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:national_web/presentation/auth/login_check.dart';
 import '../../utils/var/controllers.dart';
 import '../../utils/var/image.dart';
 import 'cubit/cubit.dart';
 import 'cubit/state.dart';
+import 'widget/admin_liar.dart';
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
   @override
@@ -150,19 +152,27 @@ class SignUpScreen extends StatelessWidget {
                                 ),
                                 controller:Controllers.passwordCheckController ,
                               ),
-
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: DropDownTypeList(
+                                  width: 400,
+                                  list: cubit.list,
+                                  fun: cubit,
+                                ),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.only(top: 20.0,left: 200.0),
                                 child: InkWell(
                                   onTap: (){
-                                    // Navigator.push(context, MaterialPageRoute(builder: (_){
-                                    //   return const LoginCheck();
-                                    // }));
-                                    // cubit.signUpCubit
-                                    //   (Controllers.emailController.text,
-                                    //     Controllers.passwordController.text,
-                                    //     Controllers.userNameController.text);
+                                    Navigator.push(context, MaterialPageRoute(builder: (_){
+                                      return const LoginCheck();
+                                    }));
+                                    cubit.signUpCubit
+                                      (Controllers.emailController.text,
+                                        Controllers.passwordController.text,
+                                        Controllers.userNameController.text,cubit.userType);
                                   },
+
                                   child: Container(
                                     height: 50,
                                     width: 300,

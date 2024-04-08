@@ -27,11 +27,11 @@ class BodyHome extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20,),
-            const Text("       add family member request"),
+            const Text("       update card"),
             const SizedBox(height: 40,),
             ListView.builder(
                 shrinkWrap: true,
-                itemCount: 1,
+                itemCount: cubit.requestData.length,
                 itemBuilder: (context,i) {
                   return Container(
                     height: 50,

@@ -5,6 +5,7 @@ class  RequestAddFamilyState extends MainState{}
 class  RequestUpdateFamilyState extends MainState{}
 class  RequestUpdateCardState extends MainState{}
 class  ProfileState extends MainState{}
+class  MyProfileState extends MainState{}
 class  EmptyState extends MainState{}
 class  AddAcptedState extends MainState{}
 class  AddRegctedState extends MainState{}
