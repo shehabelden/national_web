@@ -10,23 +10,45 @@ class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    AuthCubit cubit=AuthCubit();
+    AuthCubit cubit=AuthCubit.get(context);
     return  Scaffold(
       body: BlocBuilder<AuthCubit,AuthMainState>(
           builder: (context,state) {
             return Row(
               children: [
-                Expanded(flex: 1,child: Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(ImagesVar.images),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                ),
+                Expanded(flex: 1,child:Padding(
+            padding: const EdgeInsets.only(left: 200.0),
+            child: Container(
+            child:const Row(
+            children: [
+            Padding(
+            padding: EdgeInsets.only(top: 335.0),
+            child: Column(
+
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+            Text("Sign up",style: TextStyle(
+            color: Color(0xFF800f2f),
+            fontWeight: FontWeight.bold,
+            fontSize: 40,
+            ),),
+            Text("panel",style: TextStyle(
+            fontSize: 40,
+            fontWeight: FontWeight.bold,
+            ),),
+            ],
+            ),
+            ),
+            Text(" to admin ",style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 40,
+            ),),
+            ],
+            ),
+            ),
+            ),
+
+            ),
                 Expanded(
                   flex: 1,
                   child: SingleChildScrollView(
@@ -105,16 +127,22 @@ class SignUpScreen extends StatelessWidget {
                                 color: Color(0xFF888888),
                               ),),
                               TextFormField(
+                                obscureText:cubit.hidePasse,
                                 style:const TextStyle(
                                   color: Color(0xFF888888),
                                 ),
+                                
                                 decoration: InputDecoration(
+                                  suffixIcon:IconButton(onPressed: ()async{
+                                    await cubit.hidePass();
+                                  },
+                                    icon: Icon(cubit.hidePasse== true ?Icons.visibility_off :Icons.visibility),),
+                                  filled: true,
                                   hintText: "password",
                                   hintStyle:
                                   const TextStyle(
                                     color: Color(0xFF888888),
                                   ),
-                                  filled: true,
                                   fillColor:const Color(0xFFFAFAFA), // Change this to the desired background color
 
                                   enabledBorder: OutlineInputBorder(
@@ -132,13 +160,20 @@ class SignUpScreen extends StatelessWidget {
                                 style:const TextStyle(
                                   color: Color(0xFF888888),
                                 ),
+                                obscureText:cubit.hidePasse,
                                 decoration: InputDecoration(
+                                  suffixIcon:IconButton(onPressed: ()async{
+                                    await cubit.hidePass();
+                                  },
+                                    icon: Icon(cubit.hidePasse== true ?Icons.visibility_off :Icons.visibility),),
+                                  filled: true,
+
                                   hintText: "password check",
                                   hintStyle:
                                   const TextStyle(
                                     color: Color(0xFF888888),
                                   ),
-                                  filled: true,
+
                                   fillColor:const Color(0xFFFAFAFA), // Change this to the desired background color
 
                                   enabledBorder: OutlineInputBorder(
@@ -178,7 +213,7 @@ class SignUpScreen extends StatelessWidget {
                                     width: 300,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
-                                        color:const Color(0xFF00B140),
+                                      color: Color(0xFF800f2f),
                                         borderRadius: BorderRadius.circular(12),
                                     ),
                                     child:const Text("Sign Up",style: TextStyle(

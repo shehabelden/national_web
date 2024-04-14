@@ -12,6 +12,11 @@ class AuthCubit extends Cubit<AuthMainState> {
     "the traffic",
   ];
   static AuthCubit get(context) => BlocProvider.of(context);
+  bool hidePasse=false;
+  hidePass(){
+    hidePasse=!hidePasse;
+    emit(HidePasswordState());
+  }
   signInCubit(emailAddress, password) async {
     emit(EmptyLoginState());
     try {

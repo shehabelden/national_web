@@ -8,20 +8,26 @@ class MainCubit extends Cubit<MainState> {
   MainCubit() : super(InitMainState());
   static MainCubit get(context) => BlocProvider.of(context);
   List profileId=[];
+  List profile=[];
   List requestData=[];
   List requestId=[];
   String update="";
   Map<String,dynamic>myProfile={};
   String subId="national_card";
   getProfile()async{
-    await FirebaseFirestore.instance.collection("Profile").get().then((value) {
+    await FirebaseFirestore.instance.collection("Profile").where("userType",isEqualTo: null).get().then((value) {
+      profileId=[];
+      profile=[];
       value.docs.forEach((element) {
-        profileId.add(element.id);
+        if(element.data()["userType"]==null){
+        profile.add(element.data());
+        profileId.add(element.id);}
       });
     });
     emit(ProfileState());
   }
   getMyProfile()async{
+    emit(EmptyState());
     await FirebaseFirestore.instance.collection("Profile").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
       myProfile=value.data()!;
     });
@@ -29,45 +35,55 @@ class MainCubit extends Cubit<MainState> {
   }
 
   requestUpdateCardCubit(updae,myId)async{
-    update=updae;
-    subId="national_card";
     emit(EmptyState());
-   var parent= FirebaseFirestore.instance.collection("Profile").get();
-    parent.then((value){
-      requestData=[];
-      value.docs.forEach((element) {
-        element.reference.collection("my_cards").where("permission",isEqualTo:myId)
-            .get().then((value){
-          value.docs.forEach((element) {
-            element.reference.collection("update").get().then((value) {
-              value.docs.forEach((element) {
-                requestData.add(element.data());
-                requestId.add(element.id);
-                print("update card ${requestData}");
-              });
-            });
-            // print(element.data());
-          });
-        });
-     });
-
-   });
-    emit(RequestUpdateCardState());
-  }
-  requestAddCardCubit(updae,myId)async{
-    emit(EmptyState());
+    await getMyProfile();
+    await getProfile();
     update=updae;
     subId="national_card";
     var parent= FirebaseFirestore.instance.collection("Profile").get();
     parent.then((value){
       requestData=[];
+      requestId=[];
       value.docs.forEach((element) {
         element.reference.collection("my_cards")
+            .where("permission",isEqualTo:myId)
+            .get().then((value){
+              value.docs.forEach((element) {
+                element.reference.collection("update")
+                .where("status",isEqualTo:"pending")
+                .get().then((value) {
+              value.docs.forEach((element) {
+                requestData.add(element.data());
+                requestId.add(element.id);
+                // print(element.data());
+              });
+            });
+          });
+        });
+      });
+
+    });
+    emit(RequestUpdateCardState());
+  }
+  requestAddCardCubit(updae,myId)async{
+    emit(EmptyState());
+    await getProfile();
+    update=updae;
+    subId="national_card";
+    var parent= FirebaseFirestore.instance.collection("Profile").get();
+    parent.then((value){
+      value.docs.forEach((element) {
+        requestData=[];
+        requestId=[];
+        element.reference.collection("my_cards").where("status",isEqualTo: "pending")
             .where("permission",isEqualTo:myId).get().then((value){
           value.docs.forEach((element) {
-            requestData.add(element.data());
-            requestId.add(element.id);
-            print("add card ${element.data()}");
+            if(element.data()["permission"]==myId&&element.data()["status"]=="pending"){
+              print(" $myId");
+              print(" ${element.data()["permission"]}");
+              requestData.add(element.data());
+            requestId.add(element.id);}
+            // print(element.data());
           });
         });
       });
@@ -78,17 +94,21 @@ class MainCubit extends Cubit<MainState> {
   requestAddFamilyCubit(updae)async{
     subId="";
     emit(EmptyState());
+    await getProfile();
     update=updae;
+
     var parent= FirebaseFirestore.instance.collection("Profile").get();
     parent.then((value){
       requestData=[];
+      requestId=[];
       value.docs.forEach((element) {
         element.reference.collection("my_family").get().then((value){
           value.docs.forEach((element) {
-            requestData.add(element.data());
-            requestId.add(element.id);
-            print(" add family ${element.data()}");
-          });
+            if(element.data()["status"]=="in progress") {
+              requestData.add(element.data());
+              requestId.add(element.id);
+              // print(element.data());
+            }});
         });
       });
 
@@ -100,16 +120,19 @@ class MainCubit extends Cubit<MainState> {
     emit(EmptyState());
     update=updae;
     subId="";
+    await getProfile();
     var parent= FirebaseFirestore.instance.collection("Profile").get();
     parent.then((value){
+      requestData=[];
+      requestId=[];
       value.docs.forEach((element) {
-        requestData=[];
         element.reference.collection("my_family_update").get().then((value){
           value.docs.forEach((element) {
-            requestData.add(element.data());
+            if(element.data()["status"]=="in progress") {
+              requestData.add(element.data());
             requestId.add(element.id);
             // print(element.data());
-            print("update family ${requestData}");
+            print(requestData);}
           });
         });
       });
@@ -117,20 +140,23 @@ class MainCubit extends Cubit<MainState> {
     emit(RequestUpdateFamilyState());
   }
   addAcptedData(id,data,edit,collection,doc)async{
-    requestData=[];
+    // requestData=[];
     // print(id);
     if(subId==""){
       if(update =="update"){
         await FirebaseFirestore.instance.collection("Profile")
-            .doc(id).collection("my_family_update").doc(doc)
-            .update(data);
+            .doc(id).collection("my_family_update").doc(doc).update(data);
         FirebaseFirestore.instance.collection("Profile")
-            .doc(id).collection("my_family").doc(doc).update(data);}
+            .doc(id).collection("my_family").doc(doc).update(edit);
+        FirebaseFirestore.instance.collection("Profile")
+            .doc(id).collection("my_family").doc(doc).update(data);
+      }
       else{
         FirebaseFirestore.instance.collection("Profile")
             .doc(id).collection("my_family").doc(doc).update(data);
+
         FirebaseFirestore.instance.collection("Profile")
-            .doc(id).collection("my_family").doc(doc).update(data);
+            .doc(id).collection("my_family").doc(doc).update(edit);
       }
     }else{
       if(update =="update"){
@@ -138,7 +164,10 @@ class MainCubit extends Cubit<MainState> {
             .doc(id).collection(collection).doc(doc)
             .collection("update").doc("update").update(data);
         FirebaseFirestore.instance.collection("Profile")
-            .doc(id).collection("my_cards").doc(doc).update(data);}
+            .doc(id).collection("my_cards").doc(doc).update(edit);
+        FirebaseFirestore.instance.collection("Profile")
+            .doc(id).collection("my_cards").doc(doc).update(data);
+      }
       else{
         FirebaseFirestore.instance.collection("Profile")
             .doc(id).collection(collection).doc(doc).update(data);
@@ -155,21 +184,33 @@ class MainCubit extends Cubit<MainState> {
         await FirebaseFirestore.instance.collection("Profile")
             .doc(id).collection("my_family_update").doc(doc)
             .update(data);
+        await FirebaseFirestore.instance.collection("Profile")
+            .doc(id).collection("rejected")
+            .add(data);
       }
       else{
         FirebaseFirestore.instance.collection("Profile")
             .doc(id).collection("my_family").doc(doc).update(data);
+        await FirebaseFirestore.instance.collection("Profile")
+            .doc(id).collection("rejected")
+            .add(data);
       }
     }else{
       if(update =="update"){
         await FirebaseFirestore.instance.collection("Profile")
             .doc(id).collection(collection).doc(doc)
             .collection("update").doc("update").update(data);
+        await FirebaseFirestore.instance.collection("Profile")
+            .doc(id).collection("rejected")
+            .add(data);
       }
       else{
         FirebaseFirestore.instance.collection("Profile")
             .doc(id).collection(collection).doc(doc).update(data);
+        await FirebaseFirestore.instance.collection("Profile")
+            .doc(id).collection("rejected")
+            .add(data);
       }
+    }
   }
-}
 }

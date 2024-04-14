@@ -11,16 +11,17 @@ class HomeScreen extends StatelessWidget {
     MainCubit cubit=MainCubit.get(context);
     cubit.getMyProfile();
     cubit.requestAddCardCubit("",cubit.myProfile["userType"]);
-    return BlocBuilder<MainCubit,MainState>(
-      builder: (context,state) {
-        return Scaffold(
-          appBar: AppBar(),
-          drawer: Drawer(
-            child:DrawerWidget(cubit:cubit),
-          ),
-          body:MainState is  EmptyState? const Center(child: CircularProgressIndicator(),): const BodyHome(),
-        );
-      }
+    print(cubit.requestData);
+    return Scaffold(
+      appBar: AppBar(),
+      drawer: Drawer(
+        child:DrawerWidget(cubit:cubit),
+      ),
+      body:  BlocBuilder<MainCubit,MainState>(
+          builder: (context,state) {
+          return  cubit.requestData.isEmpty ?  const Center(child: CircularProgressIndicator(),) : BodyHome();
+        }
+      ),
     );
   }
 }

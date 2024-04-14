@@ -9,5 +9,7 @@ class SignUpState extends AuthMainState {}
 class CreateProfileState extends AuthMainState {}
 
 class EmptyLoginState extends AuthMainState {}
+
 class DropDownSubCategory extends AuthMainState {}
 
+class HidePasswordState extends AuthMainState {}
