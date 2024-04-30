@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:national_web/presentation/auth/cubit/state.dart';
 import 'firebase_options.dart';
 import 'presentation/auth/cubit/cubit.dart';
 import 'presentation/auth/login_check.dart';
@@ -29,7 +30,11 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: LoginCheck(),
+        home:BlocBuilder<AuthCubit,AuthMainState>(
+            builder: (context,state) {
+            return LoginCheck();
+          }
+        ),
       ),
     );
   }

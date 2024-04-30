@@ -19,7 +19,7 @@ class RequestPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      body: requestType!.isEmpty|| name!.isEmpty|| national!.isEmpty|| image!.isEmpty ? Center(child: CircularProgressIndicator(),) : SizedBox(
+      body: SizedBox(
         height:800 ,
         width: double.infinity,
         child: Column(
@@ -42,7 +42,7 @@ class RequestPage extends StatelessWidget {
                       color: Color(0xFF800f2f),
                       fontWeight: FontWeight.bold
                   ),),
-                  Text("${name!}"),
+                  Text(name == null? "": "${name!}"),
                 ],
               ),
             ),
@@ -54,7 +54,7 @@ class RequestPage extends StatelessWidget {
                       color: Color(0xFF800f2f),
                       fontWeight: FontWeight.bold
                   ),),
-                  Text("${requestType!}"),
+                  Text(requestType==null ? "": "${requestType!}"),
                 ],
               ),
             ),

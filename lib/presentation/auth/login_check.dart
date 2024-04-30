@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:national_web/presentation/home_bage/home_screen.dart';
 
+import '../home_bage/screen/add_card.dart';
 import 'cubit/cubit.dart';
 import 'cubit/state.dart';
 import 'login_screen.dart';
@@ -17,9 +18,8 @@ class LoginCheck extends StatelessWidget {
           if(state is EmptyLoginState){
           return Center(child: CircularProgressIndicator(),);}
           else{
-            return FirebaseAuth.instance.currentUser == null ? LoginScreen() :HomeScreen();}
+            return FirebaseAuth.instance.currentUser == null ? LoginScreen() :AddCard();}
           }
-
     );
   }
 }

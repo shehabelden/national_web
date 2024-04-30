@@ -2,14 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'state.dart';
-//     "Insurance",
-//     "Ministry of Interior",
 class MainCubit extends Cubit<MainState> {
   MainCubit() : super(InitMainState());
   static MainCubit get(context) => BlocProvider.of(context);
   List profileId=[];
   List profile=[];
-  List requestData=[];
+  List requestDataCard=[];
+  List requestDataFamily=[];
+  List updateDataCard=[];
+  List updateDataFamily=[];
   List requestId=[];
   String update="";
   Map<String,dynamic>myProfile={};
@@ -24,6 +25,7 @@ class MainCubit extends Cubit<MainState> {
         profileId.add(element.id);}
       });
     });
+    print(profile);
     emit(ProfileState());
   }
   getMyProfile()async{
@@ -35,14 +37,13 @@ class MainCubit extends Cubit<MainState> {
   }
 
   requestUpdateCardCubit(updae,myId)async{
-    emit(EmptyState());
-    await getMyProfile();
+    emit(UpdateCardEmptyState());
     await getProfile();
     update=updae;
     subId="national_card";
     var parent= FirebaseFirestore.instance.collection("Profile").get();
     parent.then((value){
-      requestData=[];
+      updateDataCard=[];
       requestId=[];
       value.docs.forEach((element) {
         element.reference.collection("my_cards")
@@ -53,7 +54,7 @@ class MainCubit extends Cubit<MainState> {
                 .where("status",isEqualTo:"pending")
                 .get().then((value) {
               value.docs.forEach((element) {
-                requestData.add(element.data());
+                updateDataCard.add(element.data());
                 requestId.add(element.id);
                 // print(element.data());
               });
@@ -63,29 +64,31 @@ class MainCubit extends Cubit<MainState> {
       });
 
     });
+    // await  FirebaseFirestore.instance.collectionGroup("update").where("permission",isEqualTo: myProfile["userType"]).get().then((value){
+    //   updateDataCard=[];
+    //   value.docs.forEach((element) {
+    //
+    //     if(element.data()["permission"]==myProfile["userType"]){
+    //       updateDataCard.add(element.data());
+    //       print(element.data());}
+    //   });
+    // });
+
     emit(RequestUpdateCardState());
   }
   requestAddCardCubit(updae,myId)async{
-    emit(EmptyState());
+    emit(AddCardEmptyState());
     await getProfile();
     update=updae;
     subId="national_card";
     var parent= FirebaseFirestore.instance.collection("Profile").get();
-    parent.then((value){
+    await FirebaseFirestore.instance.collectionGroup("my_cards").where("permission",isEqualTo: myProfile["userType"]).get().then((value){
+      requestDataCard=[];
       value.docs.forEach((element) {
-        requestData=[];
-        requestId=[];
-        element.reference.collection("my_cards").where("status",isEqualTo: "pending")
-            .where("permission",isEqualTo:myId).get().then((value){
-          value.docs.forEach((element) {
-            if(element.data()["permission"]==myId&&element.data()["status"]=="pending"){
-              print(" $myId");
-              print(" ${element.data()["permission"]}");
-              requestData.add(element.data());
-            requestId.add(element.id);}
-            // print(element.data());
-          });
-        });
+
+        if(element.data()["permission"]==myProfile["userType"]){
+            requestDataCard.add(element.data());
+        print(element.data());}
       });
     });
     // print(requestData);
@@ -93,50 +96,68 @@ class MainCubit extends Cubit<MainState> {
   }
   requestAddFamilyCubit(updae)async{
     subId="";
-    emit(EmptyState());
+    emit(AddFamilyEmptyState());
     await getProfile();
     update=updae;
 
-    var parent= FirebaseFirestore.instance.collection("Profile").get();
-    parent.then((value){
-      requestData=[];
-      requestId=[];
+    await FirebaseFirestore.instance.collectionGroup("my_family").get().then((value){
+      requestDataFamily=[];
       value.docs.forEach((element) {
-        element.reference.collection("my_family").get().then((value){
-          value.docs.forEach((element) {
-            if(element.data()["status"]=="in progress") {
-              requestData.add(element.data());
-              requestId.add(element.id);
-              // print(element.data());
-            }});
-        });
+        if(element.data()["status"] !=null){
+        requestDataFamily.add(element.data());
+          print(element.data());
+        }
       });
-
     });
+
+    // var parent= FirebaseFirestore.instance.collection("Profile").get();
+    // parent.then((value){
+    //   requestDataFamily=[];
+    //   requestId=[];
+    //   value.docs.forEach((element) {
+    //     element.reference.collection("my_family").get().then((value){
+    //       value.docs.forEach((element) {
+    //         if(element.data()["status"]=="in progress") {
+    //           requestDataFamily.add(element.data());
+    //           requestId.add(element.id);
+    //           // print(element.data());
+    //         }});
+    //     });
+    //   });
+    //
+    // });
     // print(requestData);
     emit(RequestAddFamilyState());
   }
   requestUpdateFamilyCubit(updae)async{
-    emit(EmptyState());
+    emit(UpdateFamilyEmptyState());
     update=updae;
     subId="";
     await getProfile();
-    var parent= FirebaseFirestore.instance.collection("Profile").get();
-    parent.then((value){
-      requestData=[];
-      requestId=[];
+    await FirebaseFirestore.instance.collectionGroup("my_family_update").get().then((value){
+      updateDataFamily=[];
       value.docs.forEach((element) {
-        element.reference.collection("my_family_update").get().then((value){
-          value.docs.forEach((element) {
-            if(element.data()["status"]=="in progress") {
-              requestData.add(element.data());
-            requestId.add(element.id);
-            // print(element.data());
-            print(requestData);}
-          });
-        });
+        updateDataFamily.add(element.data());
+        print(element.data());
       });
     });
+
+    // var parent= FirebaseFirestore.instance.collection("Profile").get();
+    // parent.then((value){
+    //   updateDataFamily=[];
+    //   requestId=[];
+    //   value.docs.forEach((element) {
+    //     element.reference.collection("my_family_update").get().then((value){
+    //       value.docs.forEach((element) {
+    //         if(element.data()["status"]=="in progress") {
+    //           updateDataFamily.add(element.data());
+    //         requestId.add(element.id);
+    //         // print(element.data());
+    //         print(updateDataFamily);}
+    //       });
+    //     });
+    //   });
+    // });
     emit(RequestUpdateFamilyState());
   }
   addAcptedData(id,data,edit,collection,doc)async{
